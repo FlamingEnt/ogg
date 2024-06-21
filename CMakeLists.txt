@@ -126,9 +126,9 @@ if(DO_INSTALL)
         FRAMEWORK DESTINATION ${CMAKE_INSTALL_PREFIX}
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ogg
     )
+    
+    export(EXPORT OggTargets NAMESPACE Ogg:: FILE OggTargets.cmake)    
 endif()
-
-export(EXPORT OggTargets NAMESPACE Ogg:: FILE OggTargets.cmake)
 
 if(DO_INSTALL)
     if(INSTALL_CMAKE_PACKAGE_MODULE)
