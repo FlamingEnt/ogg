@@ -13,9 +13,11 @@ include(CMakePackageConfigHelpers)
 
 # Build options
 option(BUILD_SHARED_LIBS "Build shared library" OFF)
+option(BUILD_TESTING "Build tests" OFF)
 if(APPLE)
     option(BUILD_FRAMEWORK "Build Framework bundle for OSX" OFF)
 endif()
+option(DO_INSTALL "Install" OFF)
 
 # Install options
 option(INSTALL_DOCS "Install documentation" ON)
@@ -115,67 +117,71 @@ endif()
 
 configure_pkg_config_file(ogg.pc.in)
 
-install(TARGETS ogg
-    EXPORT OggTargets
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    FRAMEWORK DESTINATION ${CMAKE_INSTALL_PREFIX}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ogg
-)
+if(DO_INSTALL)
+    install(TARGETS ogg
+        EXPORT OggTargets
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        FRAMEWORK DESTINATION ${CMAKE_INSTALL_PREFIX}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ogg
+    )
+endif()
 
 export(EXPORT OggTargets NAMESPACE Ogg:: FILE OggTargets.cmake)
 
-if(INSTALL_CMAKE_PACKAGE_MODULE)
-    set(CMAKE_INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Ogg)
-    install(EXPORT OggTargets
-        DESTINATION ${CMAKE_INSTALL_CONFIGDIR}
-        NAMESPACE Ogg::
-    )
+if(DO_INSTALL)
+    if(INSTALL_CMAKE_PACKAGE_MODULE)
+        set(CMAKE_INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Ogg)
+        install(EXPORT OggTargets
+            DESTINATION ${CMAKE_INSTALL_CONFIGDIR}
+            NAMESPACE Ogg::
+        )
 
-    include(CMakePackageConfigHelpers)
+        include(CMakePackageConfigHelpers)
 
-    configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/OggConfig.cmake.in ${PROJECT_BINARY_DIR}/OggConfig.cmake
-        INSTALL_DESTINATION ${CMAKE_INSTALL_CONFIGDIR}
-        PATH_VARS CMAKE_INSTALL_FULL_INCLUDEDIR
-    )
+        configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/OggConfig.cmake.in ${PROJECT_BINARY_DIR}/OggConfig.cmake
+            INSTALL_DESTINATION ${CMAKE_INSTALL_CONFIGDIR}
+            PATH_VARS CMAKE_INSTALL_FULL_INCLUDEDIR
+        )
 
-    write_basic_package_version_file(${PROJECT_BINARY_DIR}/OggConfigVersion.cmake
-        VERSION ${PROJECT_VERSION}
-        COMPATIBILITY SameMajorVersion
-    )
+        write_basic_package_version_file(${PROJECT_BINARY_DIR}/OggConfigVersion.cmake
+            VERSION ${PROJECT_VERSION}
+            COMPATIBILITY SameMajorVersion
+        )
 
-    install(FILES ${PROJECT_BINARY_DIR}/OggConfig.cmake ${PROJECT_BINARY_DIR}/OggConfigVersion.cmake
-        DESTINATION ${CMAKE_INSTALL_CONFIGDIR}
-    )
-endif()
+        install(FILES ${PROJECT_BINARY_DIR}/OggConfig.cmake ${PROJECT_BINARY_DIR}/OggConfigVersion.cmake
+            DESTINATION ${CMAKE_INSTALL_CONFIGDIR}
+        )
+    endif()
 
-if(INSTALL_PKG_CONFIG_MODULE)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ogg.pc
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-    )
-endif()
+    if(INSTALL_PKG_CONFIG_MODULE)
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ogg.pc
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+        )
+    endif()
 
-if(INSTALL_DOCS)
-    set(OGG_DOCS
-        doc/framing.html
-        doc/index.html
-        doc/oggstream.html
-        doc/ogg-multiplex.html
-        doc/fish_xiph_org.png
-        doc/multiplex1.png
-        doc/packets.png
-        doc/pages.png
-        doc/stream.png
-        doc/vorbisword2.png
-        doc/white-ogg.png
-        doc/white-xifish.png
-        doc/rfc3533.txt
-        doc/rfc5334.txt
-        doc/skeleton.html
-    )
-    install(FILES ${OGG_DOCS} DESTINATION ${CMAKE_INSTALL_DOCDIR}/html)
-    install(DIRECTORY doc/libogg DESTINATION ${CMAKE_INSTALL_DOCDIR}/html)
+    if(INSTALL_DOCS)
+        set(OGG_DOCS
+            doc/framing.html
+            doc/index.html
+            doc/oggstream.html
+            doc/ogg-multiplex.html
+            doc/fish_xiph_org.png
+            doc/multiplex1.png
+            doc/packets.png
+            doc/pages.png
+            doc/stream.png
+            doc/vorbisword2.png
+            doc/white-ogg.png
+            doc/white-xifish.png
+            doc/rfc3533.txt
+            doc/rfc5334.txt
+            doc/skeleton.html
+        )
+        install(FILES ${OGG_DOCS} DESTINATION ${CMAKE_INSTALL_DOCDIR}/html)
+        install(DIRECTORY doc/libogg DESTINATION ${CMAKE_INSTALL_DOCDIR}/html)
+    endif()
 endif()
 
 if(BUILD_TESTING)
@@ -196,5 +202,7 @@ if(BUILD_TESTING)
     add_test(NAME test_framing COMMAND $<TARGET_FILE:test_framing>)
 endif()
 
-set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
-include(CPack)
+if(DO_INSTALL)
+    set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+    include(CPack)
+endif()
