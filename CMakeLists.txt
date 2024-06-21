@@ -117,7 +117,7 @@ endif()
 
 configure_pkg_config_file(ogg.pc.in)
 
-#if(DO_INSTALL)
+if(DO_INSTALL)
     install(TARGETS ogg
         EXPORT OggTargets
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -128,7 +128,7 @@ configure_pkg_config_file(ogg.pc.in)
     )
     
     export(EXPORT OggTargets NAMESPACE Ogg:: FILE OggTargets.cmake)    
-#endif()
+endif()
 
 if(DO_INSTALL)
     if(INSTALL_CMAKE_PACKAGE_MODULE)
